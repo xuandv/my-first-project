@@ -1,0 +1,107 @@
+create or replace PROCEDURE                                         SP_BLOOD_GROUP_QUANTILY_GETALL(sys_curs OUT SYS_REFCURSOR) AS
+BEGIN
+      OPEN sys_curs FOR
+     SELECT C.BLOOD_GROUP_QUANTILY_ID,
+                   C.BLOOD_GROUP_ID,
+                   C.LABLE_NAME,
+                   C.INACTIVE,
+                   C.ROW_VERSION,
+                   C.CREATE_BY,
+                   C.CREATE_DATE,
+                   C.MODIFY_BY,
+                   C.MODIFY_DATE,
+                    C.NUMBER_ORDER,
+                    C.AMOUNT
+    FROM   BLOOD_GROUP_QUANTILY C
+    UNION ALL
+                        SELECT b.blood_group_id as BLOOD_GROUP_QUANTILY_ID,
+                                '' as BLOOD_GROUP_ID,
+                                B.BLOOD_GROUP_NAME as LABLE_NAME,
+                                1 AS INACTIVE,
+                                0 as ROW_VERSION,
+                                 B.CREATE_BY,
+                                B.CREATE_DATE,
+                                B.MODIFY_BY,
+                                B.MODIFY_DATE,
+                                1 as NUMBER_ORDER,
+                                0 as AMOUNT
+                        FROM BLOOD_GROUP B;
+END;
+
+
+create or replace PROCEDURE                 SP_BLOOD_GROUP_QUANTILY_UPDATE(
+                                               PBLOOD_GROUP_QUANTILY_ID     IN BLOOD_GROUP_QUANTILY.BLOOD_GROUP_QUANTILY_ID%TYPE,
+                                                  PBLOOD_GROUP_ID              IN BLOOD_GROUP_QUANTILY.BLOOD_GROUP_ID%TYPE, -- PK
+                                                  PLABLE_NAME                  IN BLOOD_GROUP_QUANTILY.LABLE_NAME%TYPE,
+                                                  PNUMBER_ORDER                IN BLOOD_GROUP_QUANTILY.NUMBER_ORDER%TYPE,
+                                                  PINACTIVE                    IN BLOOD_GROUP_QUANTILY.INACTIVE%TYPE, -- Tạm ngưng
+                                                  PROW_VERSION                 IN BLOOD_GROUP_QUANTILY.ROW_VERSION%TYPE,
+                                                  PCREATE_BY                   IN BLOOD_GROUP_QUANTILY.CREATE_BY%TYPE, -- Người tạo
+                                                  PCREATE_DATE                 IN BLOOD_GROUP_QUANTILY.CREATE_DATE%TYPE, -- NGày tạo
+                                                  PMODIFY_BY                   IN BLOOD_GROUP_QUANTILY.MODIFY_BY%TYPE, -- Người sửa
+                                                  PMODIFY_DATE                 IN BLOOD_GROUP_QUANTILY.MODIFY_DATE%TYPE, -- Ngày sửa
+                                                  PNOTE                      IN BLOOD_GROUP_QUANTILY.NOTE%TYPE) AS
+v_rowcount int := 0;
+BEGIN
+  SELECT COUNT (*) INTO v_rowcount
+  FROM BLOOD_GROUP_QUANTILY
+  WHERE BLOOD_GROUP_QUANTILY_ID = PBLOOD_GROUP_QUANTILY_ID;
+
+  IF (v_rowcount > 0) THEN
+  BEGIN
+    UPDATE BLOOD_GROUP_QUANTILY
+     SET BLOOD_GROUP_QUANTILY_ID = PBLOOD_GROUP_QUANTILY_ID,
+
+         BLOOD_GROUP_ID = PBLOOD_GROUP_ID,
+
+         LABLE_NAME = PLABLE_NAME,
+
+         NUMBER_ORDER = PNUMBER_ORDER,
+
+         AMOUNT = PAMOUNT,
+
+         INACTIVE = PINACTIVE,
+
+         ROW_VERSION = PROW_VERSION,
+
+         CREATE_BY   = PCREATE_BY,
+
+         CREATE_DATE = PCREATE_DATE,
+
+         MODIFY_BY = PMODIFY_BY,
+
+         MODIFY_DATE = PMODIFY_DATE
+
+   WHERE BLOOD_GROUP_QUANTILY_ID = PBLOOD_GROUP_QUANTILY_ID;
+  END;
+
+  ELSE
+  BEGIN
+    INSERT INTO BLOOD_GROUP_QUANTILY
+      (BLOOD_GROUP_QUANTILY_ID,     
+         BLOOD_GROUP_ID,        
+         LABLE_NAME,        
+         NUMBER_ORDER ,         
+         AMOUNT,        
+         INACTIVE ,        
+         ROW_VERSION ,         
+         CREATE_BY  ,         
+         CREATE_DATE ,        
+         MODIFY_BY ,        
+         MODIFY_DATE)
+    VALUES
+      (PBLOOD_GROUP_QUANTILY_ID,
+       PBLOOD_GROUP_ID,
+       PLABLE_NAME,
+       PNUMBER_ORDER,
+       PAMOUNT,
+       PINACTIVE,
+       PROW_VERSION,
+       PCREATE_BY,
+       PCREATE_DATE,
+       PMODIFY_BY,
+       PMODIFY_DATE
+       );
+  END;
+  END IF;
+END SP_BLOOD_GROUP_QUANTILY_UPDATE;
